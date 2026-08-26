@@ -8,11 +8,11 @@
 <div class="dm-wrap">
     <div class="dm-left">
         <div class="dm-card">
-            <div class="dm-card-h">👤 Info Pelanggan</div>
+            <div class="dm-card-h">Info Pelanggan</div>
             <div class="dm-tabs">
-                <div class="dm-tab on" data-tab="info">👤 Info</div>
-                <div class="dm-tab" data-tab="last">🏷️ Last M³</div>
-                <div class="dm-tab" data-tab="loc">📍 Lokasi</div>
+                <div class="dm-tab on" data-tab="info">Info</div>
+                <div class="dm-tab" data-tab="last">Last M³</div>
+                <div class="dm-tab" data-tab="loc">Lokasi</div>
             </div>
 
             <div class="dm-tabpane on" id="dm-tab-info">
@@ -48,7 +48,7 @@
         </div>
 
         <div class="dm-card dm-foto">
-            <div class="dm-card-h">🖼️ Foto Stand</div>
+            <div class="dm-card-h">Foto Stand</div>
             <div class="dm-foto-cap"><span id="dmFotoKendala">-</span> <span class="dm-stand" id="dmFotoStand">-</span></div>
             <div class="dm-meter">
                 <img class="dm-fotostand" id="dmFotoImg" src="" alt="Foto stand meter" style="display:none;">
@@ -60,10 +60,10 @@
 
     <div class="dm-card dm-right">
         <div class="dm-rh">
-            <div class="dm-title">📝 Monitoring Data</div>
+            <div class="dm-title">Monitoring Data</div>
             <div class="dm-btns">
-                <button type="button" class="btn btn-secondary" id="btnRefresh">🔄 Refresh</button>
-                <button type="button" class="btn btn-primary" id="btnCari">🔍 Pencarian (F2)</button>
+                <button type="button" class="btn btn-secondary" id="btnRefresh">Refresh</button>
+                <button type="button" class="btn btn-primary" id="btnCari">Pencarian (F2)</button>
             </div>
         </div>
 
@@ -84,7 +84,7 @@
 
         {% if isCapped is defined and isCapped %}
         <div class="dm-capped-notice">
-            ⚠️ Menampilkan {{ rowLimit }} dari {{ totalMatch }} hasil yang cocok. Perhalus pencarian (nomor pelanggan, tanggal, dsb) untuk mempersempit hasil.
+            Menampilkan {{ rowLimit }} dari {{ totalMatch }} hasil yang cocok. Perhalus pencarian (nomor pelanggan, tanggal, dsb) untuk mempersempit hasil.
         </div>
         {% endif %}
 
