@@ -21,7 +21,7 @@
 
             <div class="topbar-account">
                 <span class="topbar-role">{{ currentUser['role'] is defined and currentUser['role'] ? currentUser['role'] : 'User' }}</span>
-                <span class="topbar-avatar">👤</span>
+                <span class="topbar-avatar"><img src="{{ url('img/profile.png') }}" alt="Foto profil"></span>
                 <div class="topbar-more">
                     <button type="button" class="topbar-more-btn" id="topbarMoreBtn">⋮</button>
                     <div class="topbar-more-list" id="topbarMoreList">
