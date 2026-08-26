@@ -1,0 +1,5 @@
+{
+  "intelephense.environment.phpVersion": "8.3.0",
+  "intelephense.environment.includePaths": ["vendor/phalcon/ide-stubs/src"],
+  "intelephense.files.exclude": ["*/vendor/phalcon/ide-stubs//tests/*"]
+}

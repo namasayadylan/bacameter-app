@@ -1,0 +1,12 @@
+{
+    "name": "user/bacameter-app",
+    "authors": [
+        {
+            "name": "dylan",
+            "email": "dylanhafizhramdanyxtki@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "phalcon/ide-stubs": "^5.20"
+    }
+}
