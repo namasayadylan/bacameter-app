@@ -16,7 +16,7 @@
         <div class="topbar-top">
             <div class="topbar-brand">
                 <img src="{{ url('img/logo-icon.png') }}" alt="Aurora Tekno Global" class="topbar-logo-img">
-                <span class="topbar-title">Aurora System</span>
+                <span class="topbar-title">Bacameter</span>
             </div>
 
             <div class="topbar-account">
