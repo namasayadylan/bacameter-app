@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="page-header">
-    <h1>{{ pageTitle }} <small style="font-size:12px; color:#7c8aa0; font-weight:400;">— Periode {{ periode }}</small></h1>
+    <h1>{{ pageTitle }}</h1>
 </div>
 
 <div class="dm-wrap">
@@ -71,8 +71,8 @@
             <label class="dm-show-entries">
                 Tampilkan
                 <select id="dmShowEntries">
-                    <option value="10">10</option>
-                    <option value="25" selected>25</option>
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
                     <option value="all">Semua</option>
