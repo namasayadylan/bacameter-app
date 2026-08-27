@@ -6,6 +6,12 @@
     <a href="{{ url('anomali/create') }}" class="btn btn-primary">+ Tambah Anomali</a>
 </div>
 
+{% if request.get('error') == 'used' %}
+<div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i> Data anomali tidak dapat dihapus karena masih digunakan.
+</div>
+{% endif %}
+
 <div class="master-card" data-paginate>
     <div class="master-toolbar">
         Tampilkan

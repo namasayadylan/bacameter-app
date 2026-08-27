@@ -117,7 +117,7 @@ class AnomaliController extends ControllerBase
         $cek = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($cek['jumlah'] > 0) {
-
+            return $this->response->redirect('anomali?error=used');
         }
 
         $stmt = $this->db->prepare('DELETE FROM bacameter.cater_alasan WHERE id = :id');
