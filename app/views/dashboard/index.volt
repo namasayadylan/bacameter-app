@@ -88,20 +88,21 @@
     <div class="dashboard-box db-card dashboard-box-tallest db-pos-4 db-box-flex">
         <div class="db-title">Anomali Pencatatan <span>Anomali Terbanyak</span></div>
         <div class="db-donut-wrap db-donut-wrap-grow">
-            <div class="db-donut" style="background: conic-gradient(#5a9e3f 0% 45%, #f2c744 45% 65%, #e0563a 65% 80%, #1a3d1a 80% 90%, #8fa03f 90% 96%, #b9b9b9 96% 100%);">
-                <div class="db-donut-center">
-                    <div class="db-donut-total">27.119</div>
-                    <div class="db-donut-caption">total</div>
+            {% if anomaliChart['total'] == 0 %}
+                <p style="color:#9aa4b2; text-align:center; padding:20px 10px;">Belum ada data anomali.</p>
+            {% else %}
+                <div class="db-donut" style="background: conic-gradient({{ anomaliChart['gradient'] }});">
+                    <div class="db-donut-center">
+                        <div class="db-donut-total">{{ anomaliChart['total'] }}</div>
+                        <div class="db-donut-caption">total</div>
+                    </div>
                 </div>
-            </div>
-            <ul class="db-legend">
-                <li><span class="dot" style="background:#5a9e3f"></span>Rumah terkunci</li>
-                <li><span class="dot" style="background:#f2c744"></span>Meter Umur Teknis</li>
-                <li><span class="dot" style="background:#e0563a"></span>Rumah Kosong</li>
-                <li><span class="dot" style="background:#1a3d1a"></span>Meter Rusak/Mati</li>
-                <li><span class="dot" style="background:#8fa03f"></span>Meter Buram</li>
-                <li><span class="dot" style="background:#b9b9b9"></span>Meter di kunci</li>
-            </ul>
+                <ul class="db-legend">
+                    {% for item in anomaliChart['legend'] %}
+                    <li><span class="dot" style="background:{{ item['color'] }}"></span><span class="db-legend-name">{{ item['nama'] }}</span><span class="db-legend-pct">{{ item['pct'] }}%</span></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
     </div>
 
@@ -149,6 +150,7 @@
             <span><i style="background:#f2b544"></i>Tercatat Normal</span>
             <span><i style="background:#e0564a"></i>Tercatat Abnormal</span>
         </div>
+        <div class="db-line-scroll">
         <svg viewBox="0 0 1200 300" class="db-line-svg">
             {# Gridline + label sumbu Y (0..7480, step 680) #}
             <line x1="55" y1="265.0" x2="1180" y2="265.0" class="db-grid"/><text x="47" y="268.0" class="db-ylabel">0</text>
@@ -205,6 +207,7 @@
             <polyline class="db-line-abnormal" fill="none"
                 points="55.0,261.7 98.3,258.3 141.5,244.9 184.8,238.3 228.1,241.6 271.3,241.6 314.6,241.6 357.9,244.9 401.2,219.5 444.4,234.9 487.7,234.9 531.0,231.6 574.2,231.6 617.5,231.6 660.8,258.3 704.0,261.7 747.3,231.6 790.6,228.2 833.8,219.5 877.1,234.9 920.4,234.9 963.7,238.3 1006.9,204.8 1050.2,238.3 1093.5,234.9 1136.7,231.6 1180.0,263.3"/>
         </svg>
+        </div>
     </div>
 </div>
 {% endblock %}

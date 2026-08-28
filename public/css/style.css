@@ -161,12 +161,6 @@ a { text-decoration: none; color: inherit; }
 }
 .page-header h1 { font-size: 20px; margin: 0; color: #1a3d6d; }
 
-/* ======================================================================
-   DASHBOARD — Layout grid utama
-   4 kolom SAMA LEBAR. Bedanya cuma tinggi (row-span): kol.1-2 pendek
-   (baris 1-2) lalu disambung kartu lebar di baris 3, sedangkan kol.3-4
-   tinggi penuh (baris 1-3) supaya sejajar dengan kol.1-2 digabung.
-   ====================================================================== */
 .dashboard-boxes {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -183,19 +177,15 @@ a { text-decoration: none; color: inherit; }
     container-type: inline-size;
 }
 
-/* Helper span (dipakai bareng .db-pos-x di bawah) */
 .dashboard-box-tall    { grid-row: span 2; }
 .dashboard-box-tallest { grid-row: span 3; }
 .dashboard-box-wide    { grid-column: span 2; }
 
-/* Posisi eksplisit tiap kartu -- SENGAJA ditulis manual (bukan auto-placement
-   grid) supaya susunannya pasti konsisten persis seperti mockup, nggak
-   tergantung urutan DOM atau tinggi konten yang berubah-ubah. */
-.db-pos-1 { grid-column: 1;         grid-row: 1 / span 2; } /* Total Kubikasi */
-.db-pos-2 { grid-column: 2;         grid-row: 1 / span 2; } /* Estimasi DRD */
-.db-pos-3 { grid-column: 3;         grid-row: 1 / span 3; } /* Progress Per Zona */
-.db-pos-4 { grid-column: 4;         grid-row: 1 / span 3; } /* Anomali Pencatatan */
-.db-pos-5 { grid-column: 1 / span 2; grid-row: 3; }         /* Total Sudah Baca (lebar) */
+.db-pos-1 { grid-column: 1;         grid-row: 1 / span 2; } 
+.db-pos-2 { grid-column: 2;         grid-row: 1 / span 2; } 
+.db-pos-3 { grid-column: 3;         grid-row: 1 / span 3; }
+.db-pos-4 { grid-column: 4;         grid-row: 1 / span 3; } 
+.db-pos-5 { grid-column: 1 / span 2; grid-row: 3; }         
 
 .dashboard-charts-row {
     display: flex;
@@ -205,11 +195,7 @@ a { text-decoration: none; color: inherit; }
 
 .db-box-flex { display: flex; flex-direction: column; }
 
-/* ======================================================================
-   DASHBOARD — Komponen kartu (kartu stat, progress zona, donut, split,
-   chart garis SVG)
-   ====================================================================== */
-.db-card       { padding: 13px 16px; }
+.db-card       { padding: 10px 14px; }
 .db-card-flat  { padding: 0; overflow: hidden; }
 .db-card-top   { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
 
@@ -229,7 +215,6 @@ a { text-decoration: none; color: inherit; }
 .db-sub        { display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid #eef1f5; font-size: 12px; color: #6b7280; }
 .db-sub strong { color: #1a3d6d; font-weight: 600; }
 
-/* Baris kedua "Kubikasi/DRD Terverifikasi" di dalam kartu stat */
 .db-verif {
     display: flex;
     align-items: flex-start;
@@ -239,7 +224,6 @@ a { text-decoration: none; color: inherit; }
     border-top: 1px solid #eef1f5;
 }
 
-/* --- Progress Per Zona --- */
 .db-zona-list  { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; gap: 3px; margin-top: 8px; }
 .db-zona-row   { padding: 5px 0; border-bottom: 1px dashed #eef1f5; }
 .db-zona-row:last-child { border-bottom: none; }
@@ -250,7 +234,6 @@ a { text-decoration: none; color: inherit; }
 .db-bar-fill   { height: 100%; background: #3d7de0; border-radius: 3px; }
 .db-bar-light .db-bar-fill { background: #8fb4ea; }
 
-/* --- Donut chart (Anomali Pencatatan & Grafik Pencatatan) --- */
 .db-donut-wrap      { display: flex; align-items: center; gap: 14px; margin-top: 6px; }
 .db-donut-wrap-grow {
     flex: 1;
@@ -286,7 +269,6 @@ a { text-decoration: none; color: inherit; }
     font-size: 12.5px;
     color: #4b5563;
 }
-/* Kolom card cukup lebar -> legend 2 kolom biar tidak makan tinggi */
 @container (min-width: 210px) {
     .db-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -294,13 +276,17 @@ a { text-decoration: none; color: inherit; }
     display: flex;
     align-items: center;
     min-width: 0;
+}
+.db-legend .dot  { flex-shrink: 0; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
+.db-legend-name {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.db-legend .dot  { flex-shrink: 0; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
+.db-legend-pct { margin-left: auto; padding-left: 6px; color: #9ca3af; font-size: 11px; flex-shrink: 0; white-space: nowrap; }
+.db-donut-empty { color: #9ca3af; font-size: 12.5px; text-align: center; padding: 30px 10px; }
 
-/* --- Kartu lebar terbelah dua warna (Total Sudah Baca Bulan Ini) --- */
 .db-split      { display: flex; height: 100%; }
 .db-split-col  { flex: 1; padding: 12px 16px; }
 .db-split-col:first-child { background: #3d7de0; border-radius: 12px 0 0 12px; }
@@ -312,15 +298,14 @@ a { text-decoration: none; color: inherit; }
 .db-split-col:first-child .db-list { color: #eaf1fc; }
 .db-split-col:first-child .db-list strong { color: #fff; }
 
-/* --- Baris chart bawah (donut progress + grafik garis) --- */
-.db-chart-box      { height: 320px; min-height: 260px; display: flex; flex-direction: column; flex: 1; background: #fff; border: 1px solid #e3e8ef; border-radius: 12px; container-type: inline-size; }
+.db-chart-box      { min-height: 200px; height: auto; display: flex; flex-direction: column; flex: 1; background: #fff; border: 1px solid #e3e8ef; border-radius: 12px; container-type: inline-size; }
 .db-chart-box-wide { flex: 3; }
 .db-line-legend    { display: flex; gap: 16px; font-size: 11px; color: #6b7280; margin: 8px 0 10px; }
 .db-line-legend i  { display: inline-block; width: 14px; height: 2px; margin-right: 4px; vertical-align: middle; }
 .db-line-chart-static { height: 200px; border: 1px dashed #d3d8e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 12px; }
 
-/* --- Grafik Pencatatan per Hari (line chart SVG) --- */
-.db-line-svg   { width: 100%; height: auto; display: block; }
+.db-line-svg   { width: 100%; min-width: 720px; height: 100%; display: block; }
+.db-line-scroll { overflow-x: auto; overflow-y: visible; padding-bottom: 4px; flex: 1; }
 .db-grid       { stroke: #eef1f5; stroke-width: 1; }
 .db-ylabel     { font-size: 10px; fill: #9ca3af; text-anchor: end; }
 .db-xlabel     { font-size: 10px; fill: #9ca3af; text-anchor: middle; }
