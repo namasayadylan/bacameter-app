@@ -41,7 +41,7 @@ class DashboardController extends ControllerBase
         $raw = $this->request->getQuery('periode', 'string', '');
 
         if (preg_match('/^(\d{4})-(\d{2})$/', $raw, $m)) {
-            return $m[1] . $m[2]; // '2026-07' -> '202607'
+            return $m[1] . $m[2]; 
         }
 
         return date('Ym');
