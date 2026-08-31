@@ -161,6 +161,19 @@ a { text-decoration: none; color: inherit; }
 }
 .page-header h1 { font-size: 20px; margin: 0; color: #1a3d6d; }
 
+.db-filter-periode {
+    display: flex;
+    align-items: center;
+}
+.db-filter-periode input[type="month"] {
+    padding: 5px 8px;
+    border: 1px solid #d7dee7;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #1a3d6d;
+    background: #fff;
+}
+
 .dashboard-boxes {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -229,6 +242,7 @@ a { text-decoration: none; color: inherit; }
 .db-zona-row:last-child { border-bottom: none; }
 .db-zona-label { display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-bottom: 3px; }
 .db-zona-label strong { color: #1a3d6d; font-weight: 600; }
+.db-zona-pct { color: #9aa4b2; font-weight: 400; margin-left: 4px; }
 .db-zona-sub   { margin-top: 6px; }
 .db-bar        { height: 6px; background: #eef1f5; border-radius: 3px; overflow: hidden; }
 .db-bar-fill   { height: 100%; background: #3d7de0; border-radius: 3px; }
