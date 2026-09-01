@@ -8,5 +8,10 @@
     ],
     "require-dev": {
         "phalcon/ide-stubs": "^5.20"
+    },
+    "require": {
+        "phpoffice/phpspreadsheet": "^5.9",
+        "dompdf/dompdf": "^3.1",
+        "openspout/openspout": "^5.3"
     }
 }

@@ -688,3 +688,149 @@ a { text-decoration: none; color: inherit; }
     .dm-btns { justify-content: stretch; }
     .dm-btns .btn { flex: 1; text-align: center; }
 }
+/* ===== Laporan (Report) — filter form, preview, export ===== */
+.rpt-card {
+    border-top: 3px solid var(--cobalt);
+}
+.rpt-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    border-bottom: 1px solid #eef1f4;
+}
+.rpt-preview-head {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: 8px;
+}
+
+.rpt-capped-notice {
+    background: #fff6e0;
+    color: #7a5b00;
+    border-bottom: 1px solid #f0e0a8;
+    padding: 10px 20px;
+    font-size: 13px;
+}
+.rpt-preview-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.rpt-preview-count {
+    font-weight: 400;
+    font-size: 12px;
+    color: #7c8aa0;
+    background: #eef1f4;
+    padding: 3px 10px;
+    border-radius: 12px;
+}
+.rpt-preview-actions { display: flex; gap: 8px; }
+
+/* Form: baris "label abu-abu | input putih" jadi satu kotak bergaris */
+.rpt-form { padding: 18px 18px 4px 18px; }
+.rpt-form .form-group {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid #e2e6ec;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+.rpt-form .form-group label {
+    flex: 0 0 150px;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    background: #eef1f4;
+    color: #4a5568;
+    font-weight: 500;
+    font-size: 13.5px;
+    padding: 0 16px;
+    border-right: 1px solid #e2e6ec;
+}
+.rpt-form .form-group select,
+.rpt-form .form-group input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    border-radius: 0;
+    padding: 10px 16px;
+    font-size: 14px;
+    background: #fff;
+}
+.rpt-form .form-group select:focus,
+.rpt-form .form-group input:focus {
+    outline: none;
+    box-shadow: none;
+    background: #f7faff;
+}
+.rpt-form-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 18px;
+    margin: 0 -1px -1px -1px; /* nutup rapat ke tepi card (master-card sudah overflow:hidden) */
+    background: #f7f9fb;
+    border-top: 1px solid #eef1f4;
+}
+.rpt-hide { display: none !important; }
+
+/* Tombol export */
+.btn-rpt-excel,
+.btn-rpt-pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: filter 0.12s ease, transform 0.12s ease;
+}
+.btn-rpt-excel { background: #1e8e5a; }
+.btn-rpt-excel:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn-rpt-pdf { background: #d9483a; }
+.btn-rpt-pdf:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+/* Tabel laporan: header gelap, kolom angka rata kanan, baris TOTAL tebal */
+.rpt-table-wrap { overflow-x: auto; padding: 0 18px 18px; }
+.rpt-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.rpt-table thead th {
+    background: #2b2f38;
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+    white-space: nowrap;
+}
+.rpt-table th.num,
+.rpt-table td.num { text-align: right; }
+.rpt-table tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #eef1f4;
+    color: #33445c;
+    white-space: nowrap;
+}
+.rpt-table tbody tr:hover { background: #f9fbfd; }
+.rpt-table tfoot td {
+    padding: 10px 14px;
+    font-weight: 700;
+    color: var(--navy);
+    border-top: 2px solid #d7dee7;
+    background: #f7f9fb;
+}
+
+@media (max-width: 640px) {
+    .rpt-form .form-group { flex-direction: column; }
+    .rpt-form .form-group label { flex: none; border-right: none; border-bottom: 1px solid #e2e6ec; }
+    .rpt-preview-actions { width: 100%; }
+    .rpt-preview-actions a { flex: 1; justify-content: center; }
+}

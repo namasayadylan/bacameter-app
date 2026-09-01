@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% if pageTitle is defined %}{{ pageTitle }} - {% endif %}Bacameter</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https:fonts.googleapis.com">
+    <link rel="preconnect" href="https:fonts.gstatic.com" crossorigin>
+    <link href="https:fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url('css/style.css') }}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https:unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -72,7 +72,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https:unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{{ url('js/app.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>

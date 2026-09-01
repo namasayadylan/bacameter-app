@@ -6,6 +6,8 @@ ini_set('display_errors', '1');
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/app');
 
+require BASE_PATH . '/vendor/autoload.php';
+
 require APP_PATH . '/config/env.php';
 loadEnv(BASE_PATH . '/.env');
 
@@ -21,8 +23,9 @@ try {
     require APP_PATH . '/config/loader.php';
 
     $application = new \Phalcon\Mvc\Application($di);
+    $uri = $_GET['_url'] ?? $_SERVER['REQUEST_URI'];
 
-    echo $application->handle($_SERVER['REQUEST_URI'])->getContent();
+    echo $application->handle($uri)->getContent();
 } catch (\Throwable $e) {
     echo '<h3>Error</h3><pre>' . htmlspecialchars($e->getMessage()) . '</pre>';
 }

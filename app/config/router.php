@@ -70,5 +70,17 @@ $router->add('/laporan', [
     'controller' => 'laporan',
     'action'     => 'index',
 ]);
+$router->add('/laporan/preview', [
+    'controller' => 'laporan',
+    'action'     => 'preview',
+]);
+$router->add('/laporan/export-pdf', [
+    'controller' => 'laporan',
+    'action'     => 'exportPdf',
+]);
+$router->add('/laporan/export-excel', [
+    'controller' => 'laporan',
+    'action'     => 'exportExcel',
+]);
 
 return $router;
