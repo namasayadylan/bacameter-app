@@ -378,6 +378,14 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.master-card[data-paginate]').forEach(function (root) {
         initMasterTable(root);
     });
+
+    var rptJenis = document.getElementById('rptJenis');
+    var rptPetugasGroup = document.getElementById('rptPetugasGroup');
+    if (rptJenis && rptPetugasGroup) {
+        rptJenis.addEventListener('change', function () {
+            rptPetugasGroup.style.display = (rptJenis.value === '1') ? '' : 'none';
+        });
+    }
 });
 document.addEventListener('DOMContentLoaded', function () {
     var moreBtn = document.getElementById('topbarMoreBtn');

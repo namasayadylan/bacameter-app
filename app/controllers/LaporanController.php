@@ -35,6 +35,7 @@ class LaporanController extends ControllerBase
     {
         $jenis = (int) $this->request->getQuery('jenis', 'int', 0);
         $page  = max(1, (int) $this->request->getQuery('page', 'int', 1));
+        $idPetugas = (int) $this->request->getQuery('id_petugas', 'int', 0);
 
         $bulanDefault = substr(self::PERIODE_AKTIF, 4, 2);
         $tahunDefault = substr(self::PERIODE_AKTIF, 0, 4);
@@ -70,6 +71,8 @@ class LaporanController extends ControllerBase
         $this->view->setVar('tahunList', $tahunList);
         $this->view->setVar('jenisList', self::JENIS_LABEL);
         $this->view->setVar('jenisSelected', $jenis);
+        $this->view->setVar('petugasList', $this->getPetugasList());
+        $this->view->setVar('idPetugasSelected', $idPetugas);
 
         if ($jenis > 0 && isset(self::JENIS_LABEL[$jenis])) {
             $this->view->setVar('jenis', $jenis);
@@ -77,7 +80,7 @@ class LaporanController extends ControllerBase
 
             if ($jenis === 1) {
                 $pageSize = 50;
-                $report = $this->getReport1Data($periode, $page, $pageSize);
+                $report = $this->getReport1Data($periode, $page, $pageSize, $idPetugas);
 
                 $this->view->setVar('page', $page);
                 $this->view->setVar('pageSize', $pageSize);
@@ -94,6 +97,7 @@ class LaporanController extends ControllerBase
     {
         $jenis   = (int) $this->request->getQuery('jenis', 'int', 1);
         $periode = trim((string) $this->request->getQuery('periode', 'string', self::PERIODE_AKTIF));
+        $idPetugas = (int) $this->request->getQuery('id_petugas', 'int', 0);
         if ($periode === '') {
             $periode = self::PERIODE_AKTIF;
         }
@@ -108,8 +112,13 @@ class LaporanController extends ControllerBase
         $this->view->setVar('periode', $periode);
         $this->view->setVar('kopNama', self::KOP_NAMA);
         $this->view->setVar('kopKontak', self::KOP_KONTAK);
+        [$logoSrc, $logoDebugPaths] = $this->getLogoDataUri();
+        $this->view->setVar('logoSrc', $logoSrc);
+        $this->view->setVar('logoDebugPaths', $logoDebugPaths);
         $this->view->setVar('periodeLabel', $this->formatPeriodeLabel($periode));
-        $this->view->setVar('report', $this->buildReportData($jenis, $periode));
+        $this->view->setVar('report', $jenis === 1
+            ? $this->getReport1Data($periode, null, null, $idPetugas)
+            : $this->buildReportData($jenis, $periode));
 
         $this->view->pick('laporan/print');
     }
@@ -120,6 +129,7 @@ class LaporanController extends ControllerBase
     {
         $jenis   = (int) $this->request->getQuery('jenis', 'int', 1);
         $periode = trim((string) $this->request->getQuery('periode', 'string', self::PERIODE_AKTIF));
+        $idPetugas = (int) $this->request->getQuery('id_petugas', 'int', 0);
         if ($periode === '') {
             $periode = self::PERIODE_AKTIF;
         }
@@ -128,7 +138,7 @@ class LaporanController extends ControllerBase
         }
 
         if ($jenis === 1) {
-            $totals = $this->getReport1Totals($periode);
+            $totals = $this->getReport1Totals($periode, $idPetugas);
             if ($totals['jumlah'] > self::PDF_MAX_ROWS_REPORT1) {
                 $this->view->disable();
                 $this->response->setStatusCode(422, 'Unprocessable Entity');
@@ -137,22 +147,28 @@ class LaporanController extends ControllerBase
                     "Export PDF ditolak: periode {$periode} punya {$totals['jumlah']} baris "
                     . '(maksimal ' . self::PDF_MAX_ROWS_REPORT1 . ' untuk PDF). '
                     . 'Silakan pakai Export Excel untuk data sebanyak ini, '
-                    . 'atau persempit periode/filter dulu sebelum export PDF.'
+                    . 'atau persempit periode/filter Petugas dulu sebelum export PDF.'
                 );
                 return $this->response;
             }
         }
 
-        $data = $this->buildReportData($jenis, $periode);
+        $data = $jenis === 1
+            ? $this->getReport1Data($periode, null, null, $idPetugas)
+            : $this->buildReportData($jenis, $periode);
+
+        [$logoSrc, $logoDebugPaths] = $this->getLogoDataUri();
 
         $this->view->setVars([
-            'forPdf'       => true,
-            'jenis'        => $jenis,
-            'periode'      => $periode,
-            'kopNama'      => self::KOP_NAMA,
-            'kopKontak'    => self::KOP_KONTAK,
-            'periodeLabel' => $this->formatPeriodeLabel($periode),
-            'report'       => $data,
+            'forPdf'         => true,
+            'jenis'          => $jenis,
+            'periode'        => $periode,
+            'kopNama'        => self::KOP_NAMA,
+            'kopKontak'      => self::KOP_KONTAK,
+            'logoSrc'        => $logoSrc,
+            'logoDebugPaths' => $logoDebugPaths,
+            'periodeLabel'   => $this->formatPeriodeLabel($periode),
+            'report'         => $data,
         ]);
         $html = $this->view->getRender('laporan', 'print', [], function ($view) {
             $view->setRenderLevel(\Phalcon\Mvc\View::LEVEL_ACTION_VIEW);
@@ -181,6 +197,7 @@ class LaporanController extends ControllerBase
     {
         $jenis   = (int) $this->request->getQuery('jenis', 'int', 1);
         $periode = trim((string) $this->request->getQuery('periode', 'string', self::PERIODE_AKTIF));
+        $idPetugas = (int) $this->request->getQuery('id_petugas', 'int', 0);
         if ($periode === '') {
             $periode = self::PERIODE_AKTIF;
         }
@@ -191,7 +208,7 @@ class LaporanController extends ControllerBase
         $this->view->disable();
 
         if ($jenis === 1) {
-            $this->streamExcelReport1($periode);
+            $this->streamExcelReport1($periode, $idPetugas);
             return;                   
         }
 
@@ -219,13 +236,16 @@ class LaporanController extends ControllerBase
 
     private const EXCEL_CHUNK_SIZE = 5000;
 
-    private function streamExcelReport1(string $periode): void
+    private function streamExcelReport1(string $periode, int $idPetugas = 0): void
     {
         set_time_limit(0);
         ini_set('memory_limit', '256M');
 
-        $totals = $this->getReport1Totals($periode);
-        $filename = 'Laporan_1_' . $this->slug('Rekap Baca Meter') . '_' . $periode . '.xlsx';
+        $totals = $this->getReport1Totals($periode, $idPetugas);
+        $namaPetugasFilter = $idPetugas > 0 ? $this->getNamaPetugas($idPetugas) : null;
+        $filename = 'Laporan_1_' . $this->slug('Rekap Baca Meter') . '_' . $periode
+            . ($namaPetugasFilter !== null ? '_' . $this->slug($namaPetugasFilter) : '')
+            . '.xlsx';
 
         $options = new XlsxStreamOptions();
         $writer = new XlsxStreamWriter($options);
@@ -264,11 +284,13 @@ class LaporanController extends ControllerBase
             $boldStyle
         );
 
+        $subtitle = 'Periode ' . $this->formatPeriodeLabel($periode)
+            . '  ·  Total ' . number_format($totals['jumlah'], 0, ',', '.') . ' pelanggan';
+        if ($namaPetugasFilter !== null) {
+            $subtitle .= '  ·  Petugas: ' . $namaPetugasFilter;
+        }
         $writer->addRow(
-            StreamRow::fromValues([
-                'Periode ' . $this->formatPeriodeLabel($periode)
-                . '  ·  Total ' . number_format($totals['jumlah'], 0, ',', '.') . ' pelanggan',
-            ])
+            StreamRow::fromValues([$subtitle])
         );
 
         $writer->addRow(
@@ -300,7 +322,8 @@ class LaporanController extends ControllerBase
                        d.harga_air, d.biaya_admin
                 FROM bacameter.datameter d
                 LEFT JOIN bacameter.cater_alasan c ON c.id = d.id_anomali
-                WHERE d.periode = :periode
+                WHERE d.periode = :periode"
+                . ($idPetugas > 0 ? " AND d.id_petugas = :id_petugas" : '') . "
                 ORDER BY d.id ASC
                 OFFSET :offset ROWS FETCH NEXT :pagesize ROWS ONLY";
 
@@ -311,6 +334,9 @@ class LaporanController extends ControllerBase
 
         while (true) {
             $stmt->bindValue(':periode', $periode, \PDO::PARAM_STR);
+            if ($idPetugas > 0) {
+                $stmt->bindValue(':id_petugas', $idPetugas, \PDO::PARAM_INT);
+            }
             $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
             $stmt->bindValue(':pagesize', self::EXCEL_CHUNK_SIZE, \PDO::PARAM_INT);
             $stmt->execute();
@@ -411,9 +437,10 @@ class LaporanController extends ControllerBase
         };
     }
 
-    private function getReport1Data(string $periode, ?int $page = null, ?int $pageSize = null): array
+    private function getReport1Data(string $periode, ?int $page = null, ?int $pageSize = null, int $idPetugas = 0): array
     {
-        $totals = $this->getReport1Totals($periode);
+        $totals = $this->getReport1Totals($periode, $idPetugas);
+        $namaPetugasFilter = $idPetugas > 0 ? $this->getNamaPetugas($idPetugas) : null;
 
         $sql = "SELECT d.nomor_pelanggan, d.nama, d.alamat,
                        d.stand_awal, d.stand_akhir,
@@ -425,10 +452,14 @@ class LaporanController extends ControllerBase
                 FROM bacameter.datameter d
                 LEFT JOIN bacameter.petugas p ON p.id = d.id_petugas
                 LEFT JOIN bacameter.cater_alasan c ON c.id = d.id_anomali
-                WHERE d.periode = :periode
+                WHERE d.periode = :periode"
+                . ($idPetugas > 0 ? " AND d.id_petugas = :id_petugas" : '') . "
                 ORDER BY d.id ASC";
 
         $bind = ['periode' => $periode];
+        if ($idPetugas > 0) {
+            $bind['id_petugas'] = $idPetugas;
+        }
         $nomorAwal = 1;
 
         if ($page !== null && $pageSize !== null) {
@@ -467,9 +498,14 @@ class LaporanController extends ControllerBase
             ];
         }
 
+        $sub = 'Total ' . number_format($totals['jumlah'], 0, ',', '.') . ' pelanggan';
+        if ($namaPetugasFilter !== null) {
+            $sub .= '  ·  Petugas: ' . $namaPetugasFilter;
+        }
+
         return [
             'judul'              => 'Rekap Baca Meter',
-            'sub'                => 'Total ' . number_format($totals['jumlah'], 0, ',', '.') . ' pelanggan',
+            'sub'                => $sub,
             'rows'               => $rows,
             'jumlah_baris'       => count($rows),
             'total_keseluruhan'  => $totals['jumlah'],
@@ -482,7 +518,7 @@ class LaporanController extends ControllerBase
         ];
     }
 
-    private function getReport1Totals(string $periode): array
+    private function getReport1Totals(string $periode, int $idPetugas = 0): array
     {
         $sql = "SELECT
                     COUNT(*) AS jumlah,
@@ -491,10 +527,15 @@ class LaporanController extends ControllerBase
                     SUM(d.biaya_admin) AS total_admin,
                     SUM(d.harga_air + d.biaya_admin) AS total_rekening
                 FROM bacameter.datameter d
-                WHERE d.periode = :periode";
+                WHERE d.periode = :periode"
+                . ($idPetugas > 0 ? " AND d.id_petugas = :id_petugas" : '');
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['periode' => $periode]);
+        $bind = ['periode' => $periode];
+        if ($idPetugas > 0) {
+            $bind['id_petugas'] = $idPetugas;
+        }
+        $stmt->execute($bind);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         return [
@@ -504,6 +545,21 @@ class LaporanController extends ControllerBase
             'biaya_admin'    => (float) ($row['total_admin'] ?? 0),
             'total_rekening' => (float) ($row['total_rekening'] ?? 0),
         ];
+    }
+
+    private function getPetugasList(): array
+    {
+        $stmt = $this->db->query('SELECT id, nama FROM bacameter.petugas ORDER BY nama ASC');
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    private function getNamaPetugas(int $idPetugas): ?string
+    {
+        $stmt = $this->db->prepare('SELECT nama FROM bacameter.petugas WHERE id = :id');
+        $stmt->execute(['id' => $idPetugas]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return $row['nama'] ?? null;
     }
 
     private function getReport2Data(string $periode): array
@@ -708,6 +764,33 @@ class LaporanController extends ControllerBase
             return $periode . ' (' . $namaBulan . ' ' . $tahun . ')';
         }
         return $periode;
+    }
+    /**
+     * @return array{0: string, 1: string[]} [dataUri, triedPaths]
+     */
+    private function getLogoDataUri(): array
+    {
+        $candidates = [
+            BASE_PATH . '/public/img/logo-icon.png',
+            BASE_PATH . '/public/images/logo-icon.png',
+            BASE_PATH . '/public/img/logo.png',
+            BASE_PATH . '/public/assets/img/logo-icon.png',
+        ];
+
+        $tried = [];
+
+        foreach ($candidates as $path) {
+            $real = realpath($path);
+            if ($real !== false && is_file($real)) {
+                $binary = @file_get_contents($real);
+                if ($binary !== false) {
+                    return ['data:image/png;base64,' . base64_encode($binary), []];
+                }
+            }
+            $tried[] = $path;
+        }
+
+        return ['', $tried];
     }
 
     private function slug(string $text): string

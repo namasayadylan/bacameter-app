@@ -24,6 +24,20 @@
             <label for="rptPeriode">Periode</label>
             <input type="month" name="periode" id="rptPeriode" value="{{ periodeInputValue }}">
         </div>
+        {# Field Petugas SELALU ada di DOM (bukan cuma muncul setelah submit)
+           -- ditampilkan/disembunyikan via JS begitu dropdown Jenis diganti,
+           supaya user bisa pilih Petugas SEBELUM klik Preview pertama kali. #}
+        <div class="form-group" id="rptPetugasGroup" {% if jenisSelected != 1 %}style="display:none;"{% endif %}>
+            <label for="rptPetugas">Petugas</label>
+            <select name="id_petugas" id="rptPetugas">
+                <option value="0">- Semua Petugas -</option>
+                {% for p in petugasList %}
+                    <option value="{{ p['id'] }}" {% if idPetugasSelected is defined and idPetugasSelected == p['id'] %}selected{% endif %}>
+                        {{ p['nama'] }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
     </form>
 
     <div class="rpt-form-footer">
@@ -39,8 +53,8 @@
             <span class="rpt-preview-count">&#9776; {{ report['jumlah_baris'] }} baris</span>
         </div>
         <div class="rpt-preview-actions">
-            <a href="{{ url('laporan/export-excel') }}?jenis={{ jenis }}&periode={{ periode }}" class="btn-rpt-excel"> Excel</a>
-            <a href="{{ url('laporan/export-pdf') }}?jenis={{ jenis }}&periode={{ periode }}" class="btn-rpt-pdf" target="_blank"> PDF</a>
+            <a href="{{ url('laporan/export-excel') }}?jenis={{ jenis }}&periode={{ periode }}{% if jenis == 1 and idPetugasSelected > 0 %}&id_petugas={{ idPetugasSelected }}{% endif %}" class="btn-rpt-excel"> Excel</a>
+            <a href="{{ url('laporan/export-pdf') }}?jenis={{ jenis }}&periode={{ periode }}{% if jenis == 1 and idPetugasSelected > 0 %}&id_petugas={{ idPetugasSelected }}{% endif %}" class="btn-rpt-pdf" target="_blank"> PDF</a>
         </div>
     </div>
 
@@ -108,7 +122,7 @@
         {% if totalPages is defined and totalPages > 1 %}
         <div class="master-pagination">
             {% if page > 1 %}
-            <a href="{{ url('laporan') }}?jenis=1&periode={{ periodeInputValue }}&page={{ page - 1 }}" class="btn btn-secondary">&larr; Sebelumnya</a>
+            <a href="{{ url('laporan') }}?jenis=1&periode={{ periodeInputValue }}&page={{ page - 1 }}{% if idPetugasSelected > 0 %}&id_petugas={{ idPetugasSelected }}{% endif %}" class="btn btn-secondary">&larr; Sebelumnya</a>
             {% else %}
             <button type="button" disabled>&larr; Sebelumnya</button>
             {% endif %}
@@ -116,7 +130,7 @@
             <span class="master-page-info">Halaman {{ page }} dari {{ totalPages }}</span>
 
             {% if page < totalPages %}
-            <a href="{{ url('laporan') }}?jenis=1&periode={{ periodeInputValue }}&page={{ page + 1 }}" class="btn btn-secondary">Berikutnya &rarr;</a>
+            <a href="{{ url('laporan') }}?jenis=1&periode={{ periodeInputValue }}&page={{ page + 1 }}{% if idPetugasSelected > 0 %}&id_petugas={{ idPetugasSelected }}{% endif %}" class="btn btn-secondary">Berikutnya &rarr;</a>
             {% else %}
             <button type="button" disabled>Berikutnya &rarr;</button>
             {% endif %}

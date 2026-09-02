@@ -27,6 +27,10 @@
         }
 
         .kop { border-bottom: 2px solid #1a3d6d; padding-bottom: 10px; margin-bottom: 14px; }
+        .kop-table { width: 100%; border-collapse: collapse; }
+        .kop-logo-cell { width: 54px; vertical-align: middle; padding: 0 12px 0 0; }
+        .kop-logo { width: 42px; height: auto; display: block; }
+        .kop-text-cell { vertical-align: middle; }
         .kop-nama { font-size: 16px; font-weight: 700; color: #1a3d6d; margin: 0; }
         .kop-kontak { font-size: 10.5px; color: #6b7280; margin: 2px 0 0; }
 
@@ -65,9 +69,25 @@
 
     <div class="sheet">
         <div class="kop">
-            <p class="kop-nama">{{ kopNama }}</p>
-            <p class="kop-kontak">{{ kopKontak }}</p>
+            <table class="kop-table" cellpadding="0" cellspacing="0">
+                <tr>
+                    {% if logoSrc is defined and logoSrc %}
+                    <td class="kop-logo-cell"><img src="{{ logoSrc }}" class="kop-logo" alt="Logo"></td>
+                    {% endif %}
+                    <td class="kop-text-cell">
+                        <p class="kop-nama">{{ kopNama }}</p>
+                        <p class="kop-kontak">{{ kopKontak }}</p>
+                    </td>
+                </tr>
+            </table>
         </div>
+
+        {% if (logoSrc is not defined or not logoSrc) and logoDebugPaths is defined and logoDebugPaths %}
+        <div style="background:#fef3c7; border:1px solid #f2c94c; color:#92400e; font-size:9.5px; padding:6px 10px; margin-bottom:12px; border-radius:4px;">
+            &#9888; Logo tidak ditemukan. Path yang sudah dicoba:
+            {% for p in logoDebugPaths %}<br>&middot; {{ p }}{% endfor %}
+        </div>
+        {% endif %}
 
         <div class="judul">LAPORAN {{ report['judul'] }}</div>
         <div class="sub">Periode {{ periodeLabel }}{% if report['sub'] is defined and report['sub'] %} &middot; {{ report['sub'] }}{% endif %}</div>

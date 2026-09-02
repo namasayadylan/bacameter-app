@@ -688,7 +688,6 @@ a { text-decoration: none; color: inherit; }
     .dm-btns { justify-content: stretch; }
     .dm-btns .btn { flex: 1; text-align: center; }
 }
-/* ===== Laporan (Report) — filter form, preview, export ===== */
 .rpt-card {
     border-top: 3px solid var(--cobalt);
 }
@@ -730,8 +729,6 @@ a { text-decoration: none; color: inherit; }
     border-radius: 12px;
 }
 .rpt-preview-actions { display: flex; gap: 8px; }
-
-/* Form: baris "label abu-abu | input putih" jadi satu kotak bergaris */
 .rpt-form { padding: 18px 18px 4px 18px; }
 .rpt-form .form-group {
     flex-direction: row;
@@ -774,13 +771,12 @@ a { text-decoration: none; color: inherit; }
     display: flex;
     justify-content: flex-end;
     padding: 14px 18px;
-    margin: 0 -1px -1px -1px; /* nutup rapat ke tepi card (master-card sudah overflow:hidden) */
+    margin: 0 -1px -1px -1px; 
     background: #f7f9fb;
     border-top: 1px solid #eef1f4;
 }
 .rpt-hide { display: none !important; }
 
-/* Tombol export */
 .btn-rpt-excel,
 .btn-rpt-pdf {
     display: inline-flex;
@@ -799,8 +795,6 @@ a { text-decoration: none; color: inherit; }
 .btn-rpt-excel:hover { filter: brightness(1.08); transform: translateY(-1px); }
 .btn-rpt-pdf { background: #d9483a; }
 .btn-rpt-pdf:hover { filter: brightness(1.08); transform: translateY(-1px); }
-
-/* Tabel laporan: header gelap, kolom angka rata kanan, baris TOTAL tebal */
 .rpt-table-wrap { overflow-x: auto; padding: 0 18px 18px; }
 .rpt-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .rpt-table thead th {
