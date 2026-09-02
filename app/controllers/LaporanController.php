@@ -11,15 +11,6 @@ use OpenSpout\Common\Entity\Cell as StreamCell;
 use OpenSpout\Common\Entity\Row as StreamRow;
 use OpenSpout\Common\Entity\Style\Style as StreamStyle;
 
-/**
- * LaporanController — Soal Laporan Bacameter (lanjutan Brief Task).
- *
- * 3 laporan (Soal 1/2/3), semua: preview INLINE di halaman /laporan (form di
- * atas, hasil di kartu bawahnya -- sesuai mockup), + export PDF & Excel.
- * Query & total SELALU dihitung sekali lewat getReport1Data()/2/3 lalu
- * dipakai bareng oleh ketiga output (web/PDF/Excel) -- supaya angkanya
- * DIJAMIN sama persis di ketiganya.
- */
 class LaporanController extends ControllerBase
 {
     private const PERIODE_AKTIF = '202607';
@@ -123,7 +114,6 @@ class LaporanController extends ControllerBase
         $this->view->pick('laporan/print');
     }
 
-    /** Ambang batas baris aman untuk PDF -- di atas ini, generate PDF jadi terlalu berat/berhalaman ribuan. */
     private const PDF_MAX_ROWS_REPORT1 = 5000;
 
     public function exportPdfAction()
@@ -227,54 +217,8 @@ class LaporanController extends ControllerBase
         return $this->response;
     }
 
-    /** Ukuran 1 batch baca dari database untuk export Excel Soal 1. */
     private const EXCEL_CHUNK_SIZE = 5000;
 
-    /**
-     * Export Excel Soal 1 -- STREAMING MURNI ke output, untuk data besar
-     * (~99.505 baris & bisa terus bertambah).
-     *
-     * Kenapa tidak pakai PhpSpreadsheet (Spreadsheet + Writer\Xlsx) seperti
-     * Soal 2/3: PhpSpreadsheet SELALU membangun seluruh workbook sebagai
-     * objek di memori PHP dulu -- proses tulis-ke-file baru terjadi SEKALI
-     * di akhir lewat $writer->save(). Jadi walau baca datanya di-chunk per
-     * batch dari DB, objek Spreadsheet-nya tetap menampung SEMUA ~99 ribu
-     * baris sekaligus sebelum file jadi -- ini yang bikin boros RAM & lama.
-     *
-     * openspout/openspout beda: addRow() menulis LANGSUNG ke file/stream
-     * XLSX saat itu juga, baris demi baris -- tidak pernah menahan seluruh
-     * sheet di memori. Konsekuensinya: openspout TIDAK mendukung rumus
-     * Excel (=SUM(), =F-E, dst) -- makanya di sini nilai Pakai & Total
-     * Rekening dihitung langsung di PHP (murah, cuma tambah/kurang), dan
-     * baris TOTAL pakai angka dari getReport1Totals() (query SUM/COUNT
-     * terpisah di database) -- bukan rumus Excel.
-     *
-     * Alur memori per batch (loop while):
-     *   1. Tarik $EXCEL_CHUNK_SIZE baris dari DB (OFFSET/FETCH, terurut
-     *      kolom d.id yang sudah terindex sebagai PK -- aman dari data
-     *      terlewat/dobel walau di-loop banyak kali, selama tidak ada
-     *      insert/delete di tabel ini saat proses export berjalan).
-     *   2. Tiap baris langsung $writer->addRow() -- OpenSpout langsung
-     *      flush ke stream output, bukan disimpan di array PHP.
-     *   3. unset($chunk) + gc_collect_cycles() sebelum baca batch berikutnya.
-     *
-     * set_time_limit(0): mematikan batas waktu eksekusi PHP KHUSUS untuk
-     * request ini saja (bukan global/permanen ke seluruh aplikasi), supaya
-     * tidak muncul "Maximum execution time exceeded" walau prosesnya lama.
-     * Catatan: kalau server pakai reverse proxy (Nginx/IIS) di depan PHP,
-     * proxy itu punya batas timeout SENDIRI yang terpisah dari PHP dan
-     * TIDAK kena pengaruh set_time_limit() ini -- perlu dinaikkan juga di
-     * konfigurasi proxy-nya kalau proses export ternyata masih terlalu
-     * lama (import: dengan streaming murni begini, 99 ribuan baris
-     * normalnya selesai dalam hitungan detik, bukan menit -- jadi kasus
-     * itu semestinya jarang kejadian).
-     */
-    /**
-     * Export Excel Soal 1 menggunakan OpenSpout.
-     *
-     * Data ditulis secara streaming agar puluhan ribu baris tidak
-     * ditampung sebagai objek Spreadsheet di memory PHP.
-     */
     private function streamExcelReport1(string $periode): void
     {
         set_time_limit(0);
@@ -442,12 +386,6 @@ class LaporanController extends ControllerBase
         exit;
     }
 
-    /**
-     * Menambahkan satu row dengan style ke OpenSpout 5.x.
-     *
-     * Pada OpenSpout 5.x style diterapkan pada Cell, bukan dikirim
-     * sebagai argumen kedua Row::fromValues().
-     */
     private function addStyledStreamRow(
         XlsxStreamWriter $writer,
         array $values,
@@ -473,18 +411,6 @@ class LaporanController extends ControllerBase
         };
     }
 
-    /**
-     * Soal 1 -- Rekap Baca Meter per Periode (per pelanggan).
-     *
-     * $page/$pageSize null = ambil SEMUA baris (dipakai export Excel/PDF
-     * lewat jalur chunked tersendiri, BUKAN lewat method ini untuk Excel --
-     * lihat exportExcelReport1Streaming()).
-     *
-     * PENTING: totals SELALU dihitung lewat query agregat terpisah
-     * (SUM/COUNT langsung di database), BUKAN dari array $rows yang
-     * sedang ditampilkan -- supaya footer TOTAL tetap benar (mewakili
-     * SELURUH data periode ini) walau yang ditampilkan cuma 1 halaman.
-     */
     private function getReport1Data(string $periode, ?int $page = null, ?int $pageSize = null): array
     {
         $totals = $this->getReport1Totals($periode);
@@ -556,12 +482,6 @@ class LaporanController extends ControllerBase
         ];
     }
 
-    /**
-     * Agregat TOTAL utuh untuk Soal 1 -- 1 query ringan (SUM/COUNT di sisi
-     * database), TIDAK PERNAH menarik seluruh baris ke PHP. Dipakai baik
-     * oleh tampilan web (footer TOTAL tetap benar walau lagi di halaman
-     * manapun) maupun export.
-     */
     private function getReport1Totals(string $periode): array
     {
         $sql = "SELECT
@@ -586,7 +506,6 @@ class LaporanController extends ControllerBase
         ];
     }
 
-    /** Soal 2 -- Rekap per Petugas (agregat, GROUP BY id_petugas). */
     private function getReport2Data(string $periode): array
     {
         $sql = "SELECT p.nama AS nama_petugas,
@@ -635,7 +554,6 @@ class LaporanController extends ControllerBase
         ];
     }
 
-    /** Soal 3 -- Rekap per Anomali/Kendala (agregat, GROUP BY id_anomali). */
     private function getReport3Data(string $periode): array
     {
         $sql = "SELECT LTRIM(RTRIM(c.kode)) AS kode, c.nama AS nama_kendala,
