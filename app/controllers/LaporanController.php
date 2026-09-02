@@ -39,11 +39,7 @@ class LaporanController extends ControllerBase
         '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember',
     ];
 
-    // =====================================================================
-    // Halaman Laporan: form (Jenis + Periode) di atas, preview INLINE di
-    // kartu bawahnya kalau jenis sudah dipilih & di-submit -- SATU halaman,
-    // bukan tab/route terpisah (sesuai mockup).
-    // =====================================================================
+    
     public function indexAction()
     {
         $jenis = (int) $this->request->getQuery('jenis', 'int', 0);
@@ -52,8 +48,6 @@ class LaporanController extends ControllerBase
         $bulanDefault = substr(self::PERIODE_AKTIF, 4, 2);
         $tahunDefault = substr(self::PERIODE_AKTIF, 0, 4);
 
-        // Input <input type="month"> ngirim satu nilai gabungan format "YYYY-MM"
-        // (mis. "2026-08"), bukan bulan & tahun terpisah.
         $periodeInput = trim((string) $this->request->getQuery('periode', 'string', ''));
         if ($periodeInput !== '' && preg_match('/^(\d{4})-(\d{2})$/', $periodeInput, $m)) {
             $tahun = $m[1];
@@ -72,8 +66,6 @@ class LaporanController extends ControllerBase
 
         $periode = $tahun . $bulan;
 
-        // Rentang tahun buat dropdown -- 3 tahun ke belakang s.d. 1 tahun ke
-        // depan dari tahun berjalan, urut terbaru dulu.
         $tahunSekarang = (int) date('Y');
         $tahunList = range($tahunSekarang + 1, $tahunSekarang - 3);
 
@@ -93,10 +85,6 @@ class LaporanController extends ControllerBase
             $this->view->setVar('periodeLabel', $this->formatPeriodeLabel($periode));
 
             if ($jenis === 1) {
-                // Soal 1 bisa sampai ~99.500 baris (per pelanggan) -> WAJIB
-                // pagination di level SQL. Soal 2 & 3 agregat (GROUP BY),
-                // hasilnya cuma sedikit baris (per petugas/per kendala),
-                // jadi TIDAK butuh pagination -- fetch semua seperti biasa.
                 $pageSize = 50;
                 $report = $this->getReport1Data($periode, $page, $pageSize);
 
@@ -111,10 +99,6 @@ class LaporanController extends ControllerBase
         }
     }
 
-    // =====================================================================
-    // Preview "dokumen penuh" di tab baru (tanpa navbar, meniru tampilan
-    // final) -- dipakai tombol opsional / dibuka manual, bukan alur utama.
-    // =====================================================================
     public function previewAction()
     {
         $jenis   = (int) $this->request->getQuery('jenis', 'int', 1);
@@ -142,10 +126,6 @@ class LaporanController extends ControllerBase
     /** Ambang batas baris aman untuk PDF -- di atas ini, generate PDF jadi terlalu berat/berhalaman ribuan. */
     private const PDF_MAX_ROWS_REPORT1 = 5000;
 
-    // =====================================================================
-    // Export PDF -- HTML dirender dari template Volt YANG SAMA dengan
-    // preview dokumen (laporan/print), lalu diserahkan ke Dompdf.
-    // =====================================================================
     public function exportPdfAction()
     {
         $jenis   = (int) $this->request->getQuery('jenis', 'int', 1);
@@ -157,10 +137,6 @@ class LaporanController extends ControllerBase
             $jenis = 1;
         }
 
-        // Soal 1 bisa berisi puluhan ribu baris -- PDF sebanyak itu jadi
-        // ribuan halaman & rawan timeout/memory habis, dan sudah bukan lagi
-        // "laporan" yang bisa dipakai orang. Kalau kebanyakan, tolak dengan
-        // pesan jelas alih-alih memaksakan render (yang bisa bikin server hang).
         if ($jenis === 1) {
             $totals = $this->getReport1Totals($periode);
             if ($totals['jumlah'] > self::PDF_MAX_ROWS_REPORT1) {
@@ -211,11 +187,6 @@ class LaporanController extends ControllerBase
         return $this->response;
     }
 
-    // =====================================================================
-    // Export Excel -- Soal 2 & 3 (agregat, dikit baris) tetap PhpSpreadsheet
-    // dengan rumus asli. Soal 1 (per pelanggan, ~99 ribu baris) LEWAT JALUR
-    // TERPISAH (streamExcelReport1) -- lihat method itu untuk alasannya.
-    // =====================================================================
     public function exportExcelAction()
     {
         $jenis   = (int) $this->request->getQuery('jenis', 'int', 1);
@@ -229,14 +200,9 @@ class LaporanController extends ControllerBase
 
         $this->view->disable();
 
-        // Soal 1: streaming murni -- fungsi ini langsung menulis ke output
-        // dan MENGHENTIKAN eksekusi (exit) begitu selesai. Tidak pernah
-        // balik ke sini, dan TIDAK PERNAH menahan 99 ribuan baris di RAM
-        // sekaligus seperti versi PhpSpreadsheet lama.
         if ($jenis === 1) {
             $this->streamExcelReport1($periode);
-            return; // tidak akan pernah sampai sini (streamExcelReport1 exit),
-                    // tapi tetap ditulis biar jelas & aman kalau nanti diubah.
+            return;                   
         }
 
         $spreadsheet = match ($jenis) {
@@ -321,8 +287,6 @@ class LaporanController extends ControllerBase
         $writer = new XlsxStreamWriter($options);
         $writer->openToBrowser($filename);
 
-        // OpenSpout 5.x menggunakan immutable Style.
-        // with*() mengembalikan instance Style baru.
         $boldStyle = (new StreamStyle())
             ->withFontBold(true);
 
@@ -334,9 +298,6 @@ class LaporanController extends ControllerBase
             ->withFontItalic(true)
             ->withFontSize(8);
 
-        // ================================================================
-        // Kop laporan
-        // ================================================================
         $this->addStyledStreamRow(
             $writer,
             [self::KOP_NAMA],
@@ -370,9 +331,6 @@ class LaporanController extends ControllerBase
             StreamRow::fromValues([''])
         );
 
-        // ================================================================
-        // Header tabel
-        // ================================================================
         $this->addStyledStreamRow(
             $writer,
             [
@@ -391,9 +349,6 @@ class LaporanController extends ControllerBase
             $headerStyle
         );
 
-        // ================================================================
-        // Data: dibaca dari database per batch
-        // ================================================================
         $sql = "SELECT d.nomor_pelanggan, d.nama, d.alamat,
                        d.stand_awal, d.stand_akhir,
                        LTRIM(RTRIM(c.kode)) AS kode_anomali,
@@ -451,9 +406,6 @@ class LaporanController extends ControllerBase
             gc_collect_cycles();
         }
 
-        // ================================================================
-        // Total dan catatan
-        // ================================================================
         $this->addStyledStreamRow(
             $writer,
             [
@@ -487,7 +439,6 @@ class LaporanController extends ControllerBase
 
         $writer->close();
 
-        // Writer sudah mengirim response langsung ke browser.
         exit;
     }
 
@@ -513,9 +464,6 @@ class LaporanController extends ControllerBase
         );
     }
 
-    // =====================================================================
-    // Ambil data laporan sesuai jenis (dipakai bareng oleh index/preview/pdf/excel)
-    // =====================================================================
     private function buildReportData(int $jenis, string $periode): array
     {
         return match ($jenis) {
@@ -558,8 +506,6 @@ class LaporanController extends ControllerBase
         $nomorAwal = 1;
 
         if ($page !== null && $pageSize !== null) {
-            // SQL Server: OFFSET/FETCH -- cuma tarik $pageSize baris dari DB,
-            // BUKAN fetchAll() semua 99 ribuan baris ke memori PHP.
             $offset = ($page - 1) * $pageSize;
             $sql .= " OFFSET :offset ROWS FETCH NEXT :pagesize ROWS ONLY";
             $bind['offset']   = $offset;
@@ -737,9 +683,6 @@ class LaporanController extends ControllerBase
         ];
     }
 
-    // =====================================================================
-    // Excel builders (PhpSpreadsheet)
-    // =====================================================================
     private function newSpreadsheetWithKop(string $judul, string $periode, string $sub): array
     {
         $spreadsheet = new Spreadsheet();
@@ -838,9 +781,6 @@ class LaporanController extends ControllerBase
         return $spreadsheet;
     }
 
-    // =====================================================================
-    // Helper kecil
-    // =====================================================================
     private function formatPeriodeLabel(string $periode): string
     {
         if (strlen($periode) === 6) {
