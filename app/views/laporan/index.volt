@@ -41,7 +41,7 @@
     </form>
 
     <div class="rpt-form-footer">
-        <button type="submit" form="rptForm" class="btn btn-primary">&#128065; Preview</button>
+        <button type="submit" form="rptForm" class="btn btn-primary">Preview</button>
     </div>
 </div>
 
